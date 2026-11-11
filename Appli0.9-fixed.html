@@ -1,0 +1,517 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appli — Opportunity Unlocked</title>
+<style>
+:root{--bg:#0b1020;--panel:#151d32;--panel2:#1c2942;--accent:#8b7cff;--accent2:#b3a9ff;--green:#42d6a4;--red:#ff7185;--gold:#f5cb68;--text:#f5f7ff;--muted:#aab5ca;--line:#2b3853}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top,#202747,#0b1020 65%);color:var(--text);font-family:Arial,sans-serif;min-height:100vh;overflow-x:hidden}
+button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;border-radius:13px;padding:12px 15px;font-weight:bold;transition:.15s}button:active{transform:scale(.97)}
+input,textarea,select{color:var(--text)}
+.app{max-width:780px;margin:auto;padding:20px 15px 45px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.brand{font-size:29px;font-weight:900;letter-spacing:-1px}.brand span{color:var(--accent)}
+.tag{color:var(--accent2);border:1px solid var(--line);padding:7px 10px;border-radius:25px;font-size:10px;letter-spacing:1px}
+.screen{display:none}.screen.active{display:block;animation:appear .25s ease}
+@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.hero{padding:25px 0}.eyebrow{color:var(--accent2);font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase}
+h1{font-size:clamp(36px,8vw,55px);line-height:1.05;letter-spacing:-2px}h2{line-height:1.2}
+.muted{color:var(--muted);line-height:1.6}
+.panel{background:linear-gradient(145deg,#1c2942,#121a2d);border:1px solid var(--line);border-radius:21px;padding:20px;margin:15px 0}
+.primary{background:var(--accent);color:white}.secondary{background:#293655;color:white;border:1px solid #465578}.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.danger{background:#492936;color:#ffd5dc}.green{background:#174b40;color:#a8f5d8}.wide{width:100%;margin-top:10px}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+.field{margin:15px 0}.field label{display:block;color:var(--accent2);font-size:13px;font-weight:bold;margin-bottom:7px}
+.field input,.field textarea,.field select{width:100%;padding:13px;border-radius:12px;border:1px solid var(--line);background:#0c1426;color:white}
+.field textarea{min-height:90px;resize:vertical}.field input:focus,.field textarea:focus,.field select:focus{outline:1px solid var(--accent)}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.progress{height:6px;background:#27314b;border-radius:20px;overflow:hidden;margin:15px 0 23px}.progress div{height:100%;width:0;background:var(--accent);transition:.2s}
+.step{display:none}.step.active{display:block}.stephead{display:flex;justify-content:space-between;align-items:center}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:#121c30;color:var(--muted);border-radius:25px;padding:8px 11px;font-size:12px}
+.chip.selected{background:#302b58;color:#ded8ff;border-color:var(--accent)}
+.notice{font-size:12px;color:#f5dba0;background:#3a321d;border:1px solid #69582c;padding:12px;border-radius:12px;line-height:1.5}
+.filebox{border:1px dashed #62618f;border-radius:14px;padding:15px;background:#111a2d}.filebox input{border:0;padding:8px 0}
+.opportunity{position:relative;overflow:hidden;border:1px solid var(--line);background:linear-gradient(145deg,#222e4b,#141e34);border-radius:23px;padding:22px;min-height:300px;touch-action:pan-y;user-select:none;cursor:pointer;transition:transform .25s ease,opacity .25s ease}
+.opportunity.dragging{transition:none}.opportunity.leaving-right{transform:translateX(125%) rotate(18deg);opacity:0}.opportunity.leaving-left{transform:translateX(-125%) rotate(-18deg);opacity:0}.opportunity.leaving-down{transform:translateY(125%) scale(.8);opacity:0}
+.swipe-overlay{position:absolute;top:25px;left:20px;border:3px solid;border-radius:12px;padding:8px 14px;font-size:20px;font-weight:900;letter-spacing:2px;opacity:0;pointer-events:none;transform:rotate(-12deg);z-index:3}
+.overlay-like{color:#63edb7;border-color:#63edb7}.overlay-pass{color:#ff7777;border-color:#ff7777;left:auto;right:20px;transform:rotate(12deg)}
+.overlay-save{color:var(--gold);border-color:var(--gold);top:auto;bottom:25px;left:50%;transform:translateX(-50%)}
+.pill{display:inline-block;border:1px solid #55517e;color:var(--accent2);padding:6px 10px;border-radius:25px;font-size:12px;margin:0 5px 8px 0}
+.org{color:var(--accent2);font-weight:bold}.actions{display:flex;gap:9px;margin-top:15px}.actions button{flex:1;padding:13px 6px}
+.nav{display:flex;gap:8px;margin:20px 0}.nav button{flex:1;padding:10px 5px;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#101a2e;border:1px solid var(--line);padding:13px;border-radius:14px}.stat b{display:block;font-size:24px;color:var(--accent2)}
+.listitem{padding:12px 0;border-bottom:1px solid var(--line)}
+.matchbox{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#171f39;border:1px solid #504a80;border-radius:14px;padding:12px;margin:13px 0}
+.matchscore{font-size:27px;font-weight:900;color:var(--green)}.matchlabel{font-size:11px;color:var(--accent2);text-transform:uppercase;letter-spacing:1px}
+.matchwhy{font-size:13px;color:var(--muted);line-height:1.5;margin-top:10px}.tap-hint{text-align:center;color:var(--muted);font-size:12px;margin:12px 0}
+.detail-section{border-bottom:1px solid var(--line);padding:13px 0}.detail-section h3{margin:0 0 7px;color:var(--accent2);font-size:14px}.detail-section p{margin:0;color:var(--muted);line-height:1.6;font-size:14px}
+.plans{display:grid;grid-template-columns:1fr;gap:14px;margin-top:20px}.plan{background:linear-gradient(145deg,#1c2942,#121a2d);border:1px solid var(--line);border-radius:20px;padding:20px}
+.plan.featured{border:1px solid var(--accent);box-shadow:0 0 20px #8b7cff20}.plan-price{font-size:35px;font-weight:900;margin:12px 0}.plan-price span{font-size:13px;color:var(--muted);font-weight:normal}
+.plan ul{padding-left:20px;color:var(--muted);line-height:1.9;font-size:14px}.plan-label{color:var(--accent2);font-size:11px;font-weight:bold;letter-spacing:2px}
+.plan button{width:100%;margin-top:10px}.plan-badge{display:inline-block;color:var(--gold);border:1px solid #69582c;border-radius:20px;padding:5px 9px;font-size:11px}
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.choice{background:#151f35;border:1px solid var(--line);border-radius:18px;padding:18px;text-align:left;color:var(--text);min-height:150px}
+.choice:hover{border-color:var(--accent)}.choice .symbol{font-size:27px;margin-bottom:12px}.choice h3{margin:5px 0}.choice p{font-size:12px;color:var(--muted);line-height:1.5}
+.business-card{background:linear-gradient(145deg,#202b48,#121c32);border:1px solid var(--line);border-radius:18px;padding:17px;margin:12px 0}
+.footer{border-top:1px solid var(--line);margin-top:45px;padding-top:25px}
+.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}.toolbar input,.toolbar select{width:100%;padding:11px;border-radius:11px;border:1px solid var(--line);background:#0c1426;color:white;min-width:0}
+.toolbar .full{grid-column:1/-1}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.status-select{padding:9px;background:#0c1426;border:1px solid var(--line);border-radius:9px;color:white;width:100%}
+.op-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.op-actions button{font-size:12px;padding:9px 11px}
+.alert-item{border:1px solid #504a80;border-radius:13px;padding:12px;margin:9px 0;background:#171f39}
+.footer-note{font-size:11px;color:var(--muted);line-height:1.5}
+.chat-launch{position:fixed;right:17px;bottom:18px;width:58px;height:58px;border-radius:50%;background:var(--accent);color:white;font-size:24px;box-shadow:0 5px 25px #0008;z-index:20}
+.chatbox{display:none;position:fixed;right:15px;bottom:88px;width:min(360px,calc(100vw - 30px));height:490px;max-height:75vh;background:#151d32;border:1px solid var(--line);border-radius:20px;z-index:21;overflow:hidden;box-shadow:0 10px 40px #0009}
+.chatbox.open{display:flex;flex-direction:column}.chathead{background:#252b4b;padding:14px;display:flex;justify-content:space-between;align-items:center}
+.chatmessages{flex:1;padding:12px;overflow-y:auto;min-height:0;scroll-behavior:smooth}
+.chatmsg{padding:10px 12px;border-radius:12px;margin:8px 0;font-size:13px;line-height:1.5;max-width:90%;overflow-wrap:anywhere}
+.botmsg{background:#26324d;color:var(--text)}.usermsg{background:#443d70;margin-left:auto;color:white}
+.chat-input-area{padding:10px;border-top:1px solid var(--line);background:#111a2d}
+.chat-entry{display:flex;gap:7px}.chat-entry input{min-width:0;flex:1;background:#0b1426;border:1px solid var(--line);border-radius:11px;padding:11px;color:white}
+.chat-entry button{padding:10px 13px}.suggestions{margin-top:8px}.suggestions summary{font-size:12px;color:var(--accent2);cursor:pointer;padding:7px 2px}
+.suggestion-list{display:flex;flex-wrap:wrap;gap:6px;max-height:95px;overflow:auto;padding:4px 0}
+.suggestion-list button{font-size:11px;padding:7px 9px;background:#252f4a;color:var(--accent2);border:1px solid #394563;border-radius:20px}
+@media(max-width:450px){.panel{padding:16px}.row{flex-direction:column;gap:0}.actions button{font-size:12px;padding:13px 3px}.opportunity{padding:18px}.choice-grid{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.toolbar .full{grid-column:auto}.stats{gap:6px}.stat{padding:10px}.stat b{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand">appli<span>.</span></div><div class="tag">OPPORTUNITY, UNLOCKED</div></header>
+
+
+<section id="home" class="screen active">
+<div class="hero"><div class="eyebrow">Your next move starts here</div><h1>Find opportunities<br><span style="color:var(--accent2)">worth saying yes to.</span></h1><p class="muted">Jobs, internships, scholarships, research, fellowships and more — matched to what you bring to the table.</p></div>
+<div class="panel"><h2>One platform. More possibilities.</h2><p class="muted">Whether you're searching for your next opportunity or looking for your next great candidate, Appli brings possibilities together.</p><button class="primary wide" onclick="show('accountChoice')">Get started →</button><button class="ghost wide" onclick="continueExisting()">Continue with this browser</button></div>
+<p class="small">Appli prototype · Demo data is stored locally in this browser.</p>
+</section>
+
+
+<section id="accountChoice" class="screen">
+<div class="hero"><div class="eyebrow">Welcome to Appli</div><h1>How will you<br><span style="color:var(--accent2)">use Appli?</span></h1><p class="muted">Choose the account that best describes you.</p></div>
+<div class="choice-grid">
+<button class="choice" onclick="selectAccount('personal')"><div class="symbol">👤</div><h3>Personal</h3><p>Find jobs, internships, scholarships, research and other opportunities.</p></button>
+<button class="choice" onclick="selectAccount('business')"><div class="symbol">🏢</div><h3>Business</h3><p>Build an organization profile and create opportunities for applicants.</p></button>
+</div><button class="ghost wide" onclick="show('home')">Back</button>
+</section>
+
+
+<section id="setup" class="screen">
+<div class="stephead"><div><div class="eyebrow">Personal onboarding</div><h2 id="stepTitle">Let's get to know you</h2></div><span class="small" id="stepCount">1 of 4</span></div>
+<div class="progress"><div id="progressBar"></div></div>
+<div class="step">
+<p class="muted">First, let's get your basic information.</p>
+<div class="field"><label>Full name *</label><input id="fullName" placeholder="Your full name"></div>
+<div class="field"><label>Email address *</label><input id="email" type="email" placeholder="you@example.com"></div>
+<div class="field"><label>Phone number (optional)</label><input id="phone" type="tel" placeholder="Your phone number"></div>
+<div class="field"><label>Location</label><input id="location" placeholder="City, state, country"></div>
+<div class="field"><label>LinkedIn profile (optional)</label><input id="linkedin" placeholder="https://linkedin.com/in/..."></div>
+<div class="field"><label>Personal website or portfolio</label><input id="portfolio" placeholder="https://..."></div>
+</div>
+<div class="step">
+<p class="muted">Tell us about your education and experience.</p>
+<div class="field"><label>School / University *</label><input id="school" placeholder="Your school or university"></div>
+<div class="field"><label>Degree or program</label><input id="degree" placeholder="e.g. Environmental Health Sciences"></div>
+<div class="row"><div class="field"><label>Graduation year</label><input id="gradYear" placeholder="2028"></div><div class="field"><label>Current year</label><select id="schoolYear"><option value="">Select</option><option>High school</option><option>Freshman</option><option>Sophomore</option><option>Junior</option><option>Senior</option><option>Graduate student</option><option>Graduate</option><option>Other</option></select></div></div>
+<div class="field"><label>Work experience</label><textarea id="experience" placeholder="Previous jobs, positions, responsibilities..."></textarea></div>
+<div class="field"><label>Volunteering, extracurriculars and projects</label><textarea id="activities" placeholder="Clubs, sports, volunteering, research, projects..."></textarea></div>
+</div>
+<div class="step">
+<p class="muted">Help Appli understand what you're good at and what you want.</p>
+<div class="field"><label>Skills</label><textarea id="skills" placeholder="Communication, leadership, research, Excel, coding..."></textarea></div>
+<div class="field"><label>Opportunity types</label><div class="chips" id="interestChips">
+<button type="button" class="chip" data-value="Jobs">Jobs</button><button type="button" class="chip" data-value="Internships">Internships</button><button type="button" class="chip" data-value="Scholarships">Scholarships</button><button type="button" class="chip" data-value="Research">Research</button><button type="button" class="chip" data-value="Fellowships">Fellowships</button><button type="button" class="chip" data-value="Grants">Grants</button><button type="button" class="chip" data-value="Study abroad">Study abroad</button><button type="button" class="chip" data-value="Volunteering">Volunteering</button>
+</div></div>
+<div class="field"><label>Fields you're interested in</label><input id="fields" placeholder="Healthcare, technology, business, environment..."></div>
+<div class="field"><label>Preferred location</label><input id="preferredLocation" placeholder="Boston, Oregon, Remote, Anywhere..."></div>
+</div>
+<div class="step">
+<p class="muted">Finally, let's prepare your application materials.</p>
+<div class="field"><label>Upload your resume (optional)</label><div class="filebox"><input id="resume" type="file" accept=".pdf,.doc,.docx"><p class="small" id="resumeName">Choose a PDF or Word document.</p></div></div>
+<div class="field"><label>Cover letter / personal introduction</label><textarea id="coverLetter" placeholder="Tell employers about yourself and your goals."></textarea></div>
+<div class="field"><label>Availability</label><input id="availability" placeholder="Summer 2027, weekends, part-time..."></div>
+<div class="field"><label>Preferred work arrangement</label><select id="workStyle"><option value="">No preference</option><option>In-person</option><option>Hybrid</option><option>Remote</option></select></div>
+<div class="field"><label>Anything else Appli should know?</label><textarea id="extra" placeholder="Career goals, salary expectations, other preferences..."></textarea></div>
+<div class="notice">Privacy: This prototype does not upload your resume or send your information anywhere. It stores profile text locally in your browser. Only the selected resume's filename is saved.</div>
+</div>
+<div class="row" style="margin-top:20px"><button class="ghost" id="backBtn" onclick="prevStep()">Back</button><button class="primary" id="nextBtn" onclick="nextStep()">Continue</button></div>
+</section>
+
+
+<section id="businessSetup" class="screen">
+<div class="hero"><div class="eyebrow">Business onboarding</div><h1>Let's build your<br><span style="color:var(--accent2)">organization profile.</span></h1><p class="muted">Introduce your organization to the people who could become part of it.</p></div>
+<div class="panel">
+<div class="field"><label>Organization name *</label><input id="orgName" placeholder="Your organization"></div><div class="field"><label>Work email *</label><input id="orgEmail" type="email" placeholder="name@company.com"></div>
+<div class="field"><label>Organization type</label><select id="orgType"><option value="">Select type</option><option>Company</option><option>Nonprofit</option><option>University</option><option>Research institution</option><option>Government</option><option>Small business</option><option>Other</option></select></div>
+<div class="field"><label>Website</label><input id="orgWebsite" placeholder="https://..."></div><div class="field"><label>Location</label><input id="orgLocation" placeholder="City, state, country"></div><div class="field"><label>Organization description</label><textarea id="orgDescription" placeholder="What does your organization do?"></textarea></div><div class="field"><label>Contact person's name</label><input id="orgContact" placeholder="Your name"></div>
+<div class="notice">This is a demo organization profile. No verification email is sent and no public organization listing is created yet.</div><button class="primary wide" onclick="saveBusinessProfile()">Create business profile</button><button class="ghost wide" onclick="show('accountChoice')">Back</button>
+</div></section>
+
+
+<section id="plans" class="screen">
+<div class="hero"><div class="eyebrow">Personal membership</div><h1>Choose your<br><span style="color:var(--accent2)">Appli experience.</span></h1><p class="muted">Start free or upgrade when Appli Plus becomes available.</p></div>
+<div class="plans">
+<div class="plan"><div class="plan-label">GET STARTED</div><h2>Free</h2><div class="plan-price">$0 <span>/ forever</span></div><ul><li>Browse and swipe opportunities</li><li>Basic profile matching</li><li>Save opportunities</li><li>Application preparation</li><li>Personal applicant profile</li><li>Advertisements included</li></ul><button class="primary" onclick="choosePlan('Free')">Continue with Free</button></div>
+<div class="plan featured"><div class="plan-label">APPLI PLUS · MONTHLY</div><h2>Monthly</h2><div class="plan-price">$7.99 <span>/ month</span></div><ul><li>Everything in Free</li><li>Ad-free experience</li><li>Advanced opportunity matching</li><li>Priority recommendations</li><li>Additional profile customization</li><li>Application tracking tools</li></ul><span class="plan-badge">Coming soon</span><button class="secondary" onclick="comingSoon('Appli Plus Monthly')">Subscribe · Coming soon</button></div>
+<div class="plan"><div class="plan-label">APPLI PLUS · ANNUAL</div><h2>Yearly</h2><div class="plan-price">$59.99 <span>/ year</span></div><p class="small">Equivalent to about $5 per month.</p><ul><li>Everything in Monthly</li><li>Ad-free experience</li><li>Advanced matching</li><li>Priority recommendations</li><li>Application tracking tools</li></ul><span class="plan-badge">Coming soon</span><button class="secondary" onclick="comingSoon('Appli Plus Yearly')">Subscribe · Coming soon</button></div>
+</div><p class="small">Paid subscriptions are not available yet. No payment information is collected.</p>
+</section>
+
+
+<section id="businessPlans" class="screen">
+<div class="hero"><div class="eyebrow">Business membership</div><h1>Find your next<br><span style="color:var(--accent2)">great candidate.</span></h1><p class="muted">Choose a plan designed for your organization's recruiting needs.</p></div>
+<div class="plans">
+<div class="plan"><div class="plan-label">GET STARTED</div><h2>Starter</h2><div class="plan-price">$29 <span>/ month</span></div><ul><li>Organization profile</li><li>Basic opportunity management</li><li>Up to 3 demo listings</li><li>Basic applicant dashboard</li></ul><button class="primary" onclick="chooseBusinessPlan('Business Starter')">Choose Starter</button></div>
+<div class="plan featured"><div class="plan-label">GROW YOUR REACH</div><h2>Growth</h2><div class="plan-price">$79 <span>/ month</span></div><ul><li>Everything in Starter</li><li>More opportunity listings</li><li>Advanced applicant tools</li><li>Enhanced organization profile</li><li>Priority visibility (planned)</li></ul><span class="plan-badge">Coming soon</span><button class="secondary" onclick="comingSoon('Business Growth')">Choose Growth</button></div>
+<div class="plan"><div class="plan-label">LARGE ORGANIZATIONS</div><h2>Enterprise</h2><div class="plan-price">Custom</div><ul><li>Custom organization solutions</li><li>Advanced recruiting tools</li><li>Team management (planned)</li><li>Custom support (planned)</li></ul><span class="plan-badge">Coming soon</span><button class="secondary" onclick="comingSoon('Enterprise')">Contact us · Coming soon</button></div>
+</div><p class="small">Business prices are proposed demo pricing. Payments and paid features are not active.</p>
+</section>
+
+
+<section id="tutorial" class="screen">
+<div class="hero"><div class="eyebrow">Profile complete</div><h1 id="welcomeTitle">Welcome to Appli.</h1><p class="muted">Your profile is ready. Here's how exploring works.</p></div>
+<div class="panel"><div class="listitem"><b>← Swipe left</b><p class="muted">Pass on an opportunity.</p></div><div class="listitem"><b>Swipe right →</b><p class="muted">Mark it as interesting.</p></div><div class="listitem"><b>↓ Swipe down</b><p class="muted">Save it for later.</p></div><div class="listitem"><b>Tap a card</b><p class="muted">Open its full details and prepare an application.</p></div><p class="notice">A match score is a recommendation, not a guarantee of eligibility. Swiping right never submits an application.</p><button class="primary wide" onclick="show('feed');renderCard()">Explore opportunities</button></div>
+</section>
+
+
+<section id="feed" class="screen">
+<div class="eyebrow">Personalized opportunity feed</div><h2>Discover opportunities</h2><p class="muted" id="feedGreeting"></p>
+<div class="panel" style="padding:12px 15px"><div class="small">MATCHING ENGINE</div><b id="rankingInfo">Ranked by your profile</b><p class="small" style="margin-bottom:0">Best matches appear first. Demo scores are recommendations, not eligibility decisions.</p></div>
+<div class="panel">
+<div class="section-title"><b>Find your next opportunity</b><button class="ghost" onclick="clearFilters()">Clear filters</button></div>
+<div class="toolbar">
+<input id="searchBox" class="full" placeholder="Search titles, organizations, keywords..." oninput="renderCard()">
+<select id="filterType" onchange="renderCard()"><option value="">All opportunity types</option><option>Jobs</option><option>Internships</option><option>Scholarships</option><option>Research</option><option>Fellowships</option><option>Grants</option><option>Study abroad</option><option>Volunteering</option></select>
+<select id="filterWork" onchange="renderCard()"><option value="">Any work arrangement</option><option>Remote</option><option>Hybrid</option><option>In-person</option></select>
+<input id="filterLocation" placeholder="Location filter" oninput="renderCard()">
+<select id="filterDeadline" onchange="renderCard()"><option value="">Any deadline</option><option value="soon">Deadline within 60 days</option><option value="later">Deadline after 60 days</option><option value="rolling">Rolling / open</option></select>
+<select id="filterEligibility" onchange="renderCard()"><option value="">All eligibility</option><option value="undergraduate">Undergraduate</option><option value="student">Students</option></select>
+</div></div>
+<div id="cardArea"></div><p class="tap-hint">Tap a card for details · Drag left, right, or down to interact</p>
+<div class="actions"><button class="secondary" onclick="act('pass')">← Pass</button><button style="background:#44391f;color:#f5cb68" onclick="act('save')">↓ Save</button><button class="primary" onclick="act('like')">♥ Interested</button></div>
+<div class="row"><button class="ghost" onclick="undoSwipe()">↶ Undo last swipe</button><button class="ghost" onclick="show('dashboard');renderDashboard()">My activity</button></div>
+<div class="nav"><button class="ghost" onclick="show('alerts');renderAlerts()">Opportunity alerts</button><button class="ghost" onclick="show('profile');renderProfile()">My profile</button></div>
+</section>
+
+
+<section id="details" class="screen"><div class="eyebrow">Opportunity overview</div><div id="detailArea"></div><button class="primary wide" onclick="prepareApplication()">Prepare application →</button><button class="ghost wide" onclick="backToFeed()">← Back to opportunities</button></section>
+
+
+<section id="application" class="screen"><div class="eyebrow">Application workspace</div><h1 style="font-size:38px">Let's get you ready.</h1><p class="muted">Review your information before continuing. Nothing is submitted automatically.</p><div class="panel" id="applicationArea"></div><button class="primary wide" onclick="confirmInterest()">Mark as interested</button><button class="ghost wide" onclick="backToDetails()">Back to opportunity</button><p class="small">This demo does not connect to an organization's application portal.</p></section>
+
+
+<section id="dashboard" class="screen">
+<div class="eyebrow">Your Appli activity</div><h1 style="font-size:38px">Dashboard</h1>
+<div class="stats"><div class="stat"><b id="likeCount">0</b><span class="small">Interested</span></div><div class="stat"><b id="saveCount">0</b><span class="small">Saved</span></div><div class="stat"><b id="passCount">0</b><span class="small">Passed</span></div></div>
+<div class="panel"><div class="section-title"><h3>Application tracker</h3><span class="small">Update each opportunity as you progress</span></div><div id="trackerList"></div></div>
+<div class="panel"><h3>Interested</h3><div id="likedList" class="muted">Nothing here yet.</div><h3>Saved</h3><div id="savedList" class="muted">Nothing saved yet.</div><h3>Passed</h3><div id="passedList" class="muted">Nothing here yet.</div></div>
+<div class="panel"><h3>Saved collections</h3><p class="small">Create collections to organize opportunities you've saved.</p><div class="row"><input id="collectionName" placeholder="Collection name" style="min-width:0;background:#0c1426;border:1px solid var(--line);border-radius:10px;padding:10px;color:white"><button class="primary" onclick="createCollection()">Create</button></div><div id="collectionList"></div></div>
+<div class="nav"><button class="primary" onclick="show('feed');renderCard()">Back to Discover</button><button class="ghost" onclick="show('profile');renderProfile()">Profile</button></div>
+</section>
+
+
+<section id="alerts" class="screen"><div class="eyebrow">Your opportunity radar</div><h1 style="font-size:38px">Opportunity alerts</h1><p class="muted">A quick look at opportunities that fit your profile. In this prototype, alerts are generated from the demo listings already included in Appli.</p><div class="panel"><div class="section-title"><h3>Potential matches</h3><span class="pill">Demo alerts</span></div><div id="alertList"></div></div><button class="primary wide" onclick="show('feed');renderCard()">Explore opportunities</button><button class="ghost wide" onclick="show('dashboard');renderDashboard()">My dashboard</button><p class="small">Live notifications and automatic new-listing monitoring are not connected yet.</p></section>
+
+
+<section id="profile" class="screen"><div class="eyebrow">Applicant information</div><h1 style="font-size:38px">My profile</h1><div class="panel" id="profileSummary"></div><button class="primary wide" onclick="editProfile()">Edit profile</button><button class="secondary wide" onclick="show('plans')">Change plan</button><button class="ghost wide" onclick="show('feed');renderCard()">Back to Discover</button><button class="danger wide" onclick="resetDemo()">Reset demo data</button></section>
+
+
+<section id="businessDashboard" class="screen">
+<div class="eyebrow">Organization workspace</div><h1 style="font-size:38px">Business dashboard</h1><p class="muted" id="businessGreeting"></p>
+<div class="stats"><div class="stat"><b id="listingCount">0</b><span class="small">Listings</span></div><div class="stat"><b id="applicantCount">—</b><span class="small">Demo applicants</span></div><div class="stat"><b id="businessPlanLabel">Free</b><span class="small">Plan</span></div></div>
+<div class="panel"><h2>Create an opportunity</h2><p class="muted">Create a demo listing for your organization.</p>
+<div class="field"><label>Opportunity title *</label><input id="listingTitle" placeholder="e.g. Marketing Intern"></div>
+<div class="field"><label>Opportunity type</label><select id="listingType"><option>Jobs</option><option>Internships</option><option>Scholarships</option><option>Research</option><option>Fellowships</option><option>Grants</option><option>Study abroad</option><option>Volunteering</option></select></div>
+<div class="field"><label>Location</label><input id="listingLocation" placeholder="Boston, MA or Remote"></div>
+<div class="field"><label>Work arrangement</label><select id="listingWork"><option>In-person</option><option>Hybrid</option><option>Remote</option></select></div>
+<div class="field"><label>Description</label><textarea id="listingDescription" placeholder="Describe the opportunity..."></textarea></div>
+<div class="field"><label>Requirements</label><textarea id="listingRequirements" placeholder="What are you looking for?"></textarea></div>
+<div class="field"><label>Eligibility</label><input id="listingEligibility" placeholder="Who can apply?"></div>
+<div class="field"><label>Deadline</label><input id="listingDeadline" placeholder="e.g. June 1, 2027"></div>
+<div class="field"><label>Official application URL (optional)</label><input id="listingUrl" placeholder="https://..."></div>
+<button class="primary wide" onclick="createListing()">Create demo listing</button><p class="small">Listings are saved locally in this browser only. They are not published to applicants.</p></div>
+<div class="panel"><h2>Your opportunities</h2><div id="businessListings"></div></div>
+<button class="secondary wide" onclick="show('businessProfile');renderBusinessProfile()">Organization profile</button><button class="secondary wide" onclick="show('businessPlans')">Change business plan</button><button class="danger wide" onclick="resetDemo()">Reset demo data</button>
+</section>
+
+
+<section id="businessProfile" class="screen"><div class="eyebrow">Organization information</div><h1 style="font-size:38px">Organization profile</h1><div class="panel" id="businessProfileSummary"></div><button class="primary wide" onclick="editBusinessProfile()">Edit organization profile</button><button class="ghost wide" onclick="show('businessDashboard');renderBusinessDashboard()">Back to dashboard</button></section>
+
+
+<footer class="footer">
+<div class="eyebrow">Help us improve Appli</div><h2>Feedback</h2><p class="muted">Have an idea, suggestion, or found something that needs fixing? We'd love to hear it.</p>
+<div class="field"><label>Feedback category</label><select id="feedbackCategory"><option>General feedback</option><option>Bug report</option><option>Feature request</option><option>Design suggestion</option><option>Other</option></select></div>
+<div class="field"><label>Your feedback</label><textarea id="feedbackMessage" placeholder="Tell us what you think..."></textarea></div><div class="field"><label>Email (optional)</label><input id="feedbackEmail" type="email" placeholder="you@example.com"></div>
+<button class="secondary wide" disabled style="opacity:.65;cursor:not-allowed">Send feedback · Coming Soon</button><p class="small">Feedback submission is not connected yet. Your message will not be sent or stored.</p><p class="small" style="text-align:center;margin-top:30px">© 2026 Appli · Opportunity, unlocked.</p>
+</footer>
+</div>
+
+
+<button class="chat-launch" onclick="toggleChat()" aria-label="Open FAQ assistant">?</button>
+<div class="chatbox" id="chatbox">
+<div class="chathead"><div><b>Appli Assistant</b><div class="small">Ask me anything about Appli</div></div><button class="ghost" style="padding:6px 10px" onclick="toggleChat()">✕</button></div>
+<div class="chatmessages" id="chatMessages" aria-live="polite"><div class="chatmsg botmsg">Hey! Welcome to Appli. What would you like to know?</div></div>
+<div class="chat-input-area">
+<form class="chat-entry" id="chatForm"><input id="chatInput" autocomplete="off" placeholder="Type your question..." aria-label="Type your question"><button class="primary" type="submit">Send</button></form>
+<details class="suggestions"><summary>Suggested questions</summary><div class="suggestion-list">
+<button type="button" onclick="faq('What is Appli?')">What is Appli?</button>
+<button type="button" onclick="faq('How does matching work?')">How does matching work?</button>
+<button type="button" onclick="faq('Are listings real?')">Are listings real?</button>
+<button type="button" onclick="faq('How do subscriptions work?')">Subscriptions and pricing</button>
+<button type="button" onclick="faq('Is my information private?')">Privacy and information</button>
+<button type="button" onclick="faq('How do business accounts work?')">Business accounts</button>
+<button type="button" onclick="faq('How does the application tracker work?')">Application tracker</button>
+<button type="button" onclick="faq('How do I save an opportunity?')">Saving opportunities</button>
+</div></details>
+</div></div>
+
+
+<script>
+const $=id=>document.getElementById(id);
+const STORAGE={profile:'appliProfile',activity:'appliActivity',plan:'appliPlan',account:'appliAccountType',business:'appliBusinessProfile',businessPlan:'appliBusinessPlan',listings:'appliBusinessListings',tracker:'appliTracker',collections:'appliCollections'};
+let profile={},businessProfile={},businessListings=[],index=0,interested=[],saved=[],passed=[],step=0,editing=false,rankedOpportunities=[],currentOpportunity=null,accountType='personal',tracker={},collections={},lastSwipe=null;
+const statuses=['Interested','Preparing','Applied','Interviewing','Offer','Rejected','Withdrawn'];
+const opportunities=[
+{id:"op01",title:"Environmental Research Intern",org:"Green Future Institute",type:"Internships",location:"Boston, MA",work:"Hybrid",deadline:"March 15, 2027",description:"Support a research team studying urban sustainability. Help organize data, review reports and contribute to environmental projects.",fields:["environment","research","science"],tags:["research","environment","data","writing"],requirements:"Currently enrolled undergraduate student. Interest in environmental science or sustainability.",eligibility:"Demo eligibility: undergraduate students.",source:"Fictional Appli demo listing",verified:false},
+{id:"op02",title:"Future Changemakers Scholarship",org:"Bright Path Foundation",type:"Scholarships",location:"United States",work:"Remote",deadline:"April 2, 2027",description:"A scholarship supporting students who demonstrate initiative, community involvement and a commitment to positive impact.",fields:["leadership","education","community"],tags:["leadership","volunteering","writing"],requirements:"Undergraduate student with demonstrated community involvement.",eligibility:"Demo eligibility: undergraduate students.",source:"Fictional Appli demo listing",verified:false},
+{id:"op03",title:"Campus Cafe Team Member",org:"Harbor Campus Cafe",type:"Jobs",location:"Boston, MA",work:"In-person",deadline:"Open until filled",description:"Join a friendly campus team. Build customer service skills with flexible shifts designed around a student schedule.",fields:["customer service","hospitality","business"],tags:["communication","teamwork","customer service"],requirements:"No previous experience required. Student-friendly schedule.",eligibility:"Demo eligibility: applicants able to work in Boston.",source:"Fictional Appli demo listing",verified:false},
+{id:"op04",title:"Public Health Research Assistant",org:"Community Health Lab",type:"Research",location:"Boston, MA",work:"Hybrid",deadline:"February 20, 2027",description:"Assist with public health research, literature reviews and community outreach.",fields:["healthcare","public health","medicine","research"],tags:["research","writing","communication","health"],requirements:"Undergraduate student interested in public health or health sciences.",eligibility:"Demo eligibility: undergraduate students.",source:"Fictional Appli demo listing",verified:false},
+{id:"op05",title:"Climate Action Student Fellow",org:"Tomorrow Works",type:"Fellowships",location:"United States",work:"Remote",deadline:"March 28, 2027",description:"Work with a cohort of students on practical climate initiatives, communications and sustainability projects.",fields:["environment","leadership","community"],tags:["climate","communication","leadership","writing"],requirements:"Currently enrolled student with interest in climate action.",eligibility:"Demo eligibility: enrolled students.",source:"Fictional Appli demo listing",verified:false},
+{id:"op06",title:"Research and Data Intern",org:"Northstar Analytics",type:"Internships",location:"Remote",work:"Remote",deadline:"April 10, 2027",description:"Help clean datasets, summarize findings and support research projects. Training and mentorship included.",fields:["data","technology","research","science"],tags:["data","excel","research","analysis"],requirements:"Undergraduate student. Basic spreadsheet skills are helpful.",eligibility:"Demo eligibility: undergraduate students.",source:"Fictional Appli demo listing",verified:false},
+{id:"op07",title:"Healthcare Administration Intern",org:"Beacon Health Partners",type:"Internships",location:"Boston, MA",work:"In-person",deadline:"May 1, 2027",description:"Learn how healthcare organizations operate while assisting with administrative projects, patient experience research and team coordination.",fields:["healthcare","medicine","business","public health"],tags:["communication","organization","teamwork","health"],requirements:"Currently enrolled college student. Strong communication skills.",eligibility:"Demo eligibility: college students.",source:"Fictional Appli demo listing",verified:false},
+{id:"op08",title:"Global Student Exchange Grant",org:"World Bridges Foundation",type:"Grants",location:"International",work:"Remote",deadline:"May 20, 2027",description:"Financial support for students pursuing approved international exchange and educational experiences.",fields:["international","education","languages","study abroad"],tags:["communication","languages","leadership"],requirements:"Enrolled student planning an educational international experience.",eligibility:"Demo eligibility: enrolled students with a proposed exchange plan.",source:"Fictional Appli demo listing",verified:false},
+{id:"op09",title:"Community Outreach Volunteer",org:"Boston Community Network",type:"Volunteering",location:"Boston, MA",work:"In-person",deadline:"Rolling applications",description:"Help organize community events, connect residents with local resources and support outreach initiatives.",fields:["community","healthcare","leadership","public service"],tags:["communication","teamwork","leadership","volunteering"],requirements:"No previous experience required. Reliable availability.",eligibility:"Demo eligibility: local volunteers.",source:"Fictional Appli demo listing",verified:false},
+{id:"op10",title:"Junior Software Development Intern",org:"PixelForge Labs",type:"Internships",location:"Remote",work:"Remote",deadline:"June 5, 2027",description:"Work with a small development team on testing, documentation and beginner-friendly software projects.",fields:["technology","software","engineering"],tags:["coding","programming","problem solving","technology"],requirements:"Currently enrolled student with an interest in software development.",eligibility:"Demo eligibility: enrolled students.",source:"Fictional Appli demo listing",verified:false},
+{id:"op11",title:"Student Leadership Fellowship",org:"Next Generation Initiative",type:"Fellowships",location:"United States",work:"Hybrid",deadline:"April 25, 2027",description:"Develop leadership skills through mentorship, workshops and a collaborative community-impact project.",fields:["leadership","business","community","education"],tags:["leadership","communication","teamwork","organization"],requirements:"Undergraduate student interested in leadership and community projects.",eligibility:"Demo eligibility: undergraduate students.",source:"Fictional Appli demo listing",verified:false},
+{id:"op12",title:"Nutrition and Wellness Research Intern",org:"Healthy Futures Institute",type:"Research",location:"Remote",work:"Remote",deadline:"May 12, 2027",description:"Support research on nutrition, wellness and health education. Assist with literature reviews and educational material development.",fields:["nutrition","healthcare","medicine","public health","research"],tags:["research","writing","health","communication","science"],requirements:"Undergraduate student interested in nutrition, health or wellness.",eligibility:"Demo eligibility: undergraduate students.",source:"Fictional Appli demo listing",verified:false}
+];
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
+function escapeHTML(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function readJSON(k,f){try{return JSON.parse(localStorage.getItem(k))||f}catch(e){return f}}
+function saveJSON(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function loadSaved(){
+profile=readJSON(STORAGE.profile,{});businessProfile=readJSON(STORAGE.business,{});businessListings=readJSON(STORAGE.listings,[]);accountType=localStorage.getItem(STORAGE.account)||'personal';
+const a=readJSON(STORAGE.activity,{});index=a.index||0;interested=a.interested||[];saved=a.saved||[];passed=a.passed||[];
+tracker=readJSON(STORAGE.tracker,{});collections=readJSON(STORAGE.collections,{});
+}
+function persist(){saveJSON(STORAGE.activity,{index,interested,saved,passed});saveJSON(STORAGE.tracker,tracker);saveJSON(STORAGE.collections,collections)}
+function continueExisting(){if(accountType==='business'&&businessProfile.name){show('businessDashboard');renderBusinessDashboard()}else if(profile.name){if(!localStorage.getItem(STORAGE.plan))show('plans');else{show('feed');renderCard()}}else show('accountChoice')}
+function selectAccount(type){accountType=type;localStorage.setItem(STORAGE.account,type);if(type==='personal')beginSetup();else{clearBusinessForm();show('businessSetup')}}
+function beginSetup(){editing=false;step=0;clearForm();show('setup');updateStep()}
+function clearForm(){document.querySelectorAll('#setup input:not([type=file]),#setup textarea').forEach(e=>e.value='');document.querySelectorAll('#setup select').forEach(e=>e.selectedIndex=0);document.querySelectorAll('#interestChips .chip').forEach(c=>c.classList.remove('selected'));$('resume').value='';$('resumeName').textContent='Choose a PDF or Word document.'}
+$('interestChips').addEventListener('click',e=>{const c=e.target.closest('.chip');if(c)c.classList.toggle('selected')});
+$('resume').addEventListener('change',()=>$('resumeName').textContent=$('resume').files[0]?.name||'No file selected.');
+function updateStep(){document.querySelectorAll('#setup .step').forEach((s,i)=>s.classList.toggle('active',i===step));$('stepTitle').textContent=["Let's get to know you","Your education and experience","Skills and interests","Application materials"][step];$('stepCount').textContent=`${step+1} of 4`;$('progressBar').style.width=`${(step+1)*25}%`;$('backBtn').style.visibility=step===0?'hidden':'visible';$('nextBtn').textContent=step===3?(editing?'Save changes':'Create my profile'):'Continue'}
+function nextStep(){if(step===0&&(!$('fullName').value.trim()||!$('email').value.trim()||!$('email').checkValidity())){alert('Please enter your name and a valid email address.');return}if(step===1&&!$('school').value.trim()){alert('Please enter your school or university.');return}if(step<3){step++;updateStep()}else saveProfile()}
+function prevStep(){if(step>0){step--;updateStep()}}
+function saveProfile(){
+const oldResume=profile.resumeName||'';
+profile={name:$('fullName').value.trim(),email:$('email').value.trim(),phone:$('phone').value.trim(),location:$('location').value.trim(),linkedin:$('linkedin').value.trim(),portfolio:$('portfolio').value.trim(),school:$('school').value.trim(),degree:$('degree').value.trim(),gradYear:$('gradYear').value.trim(),schoolYear:$('schoolYear').value,experience:$('experience').value.trim(),activities:$('activities').value.trim(),skills:$('skills').value.trim(),interests:[...document.querySelectorAll('#interestChips .chip.selected')].map(c=>c.dataset.value),fields:$('fields').value.trim(),preferredLocation:$('preferredLocation').value.trim(),resumeName:$('resume').files[0]?.name||oldResume,coverLetter:$('coverLetter').value.trim(),availability:$('availability').value.trim(),workStyle:$('workStyle').value,extra:$('extra').value.trim()};
+saveJSON(STORAGE.profile,profile);if(!editing){interested=[];saved=[];passed=[];tracker={};index=0;persist()}editing=false;$('welcomeTitle').textContent='Welcome, '+profile.name.split(' ')[0]+'.';if(!localStorage.getItem(STORAGE.plan))show('plans');else show('tutorial')
+}
+function choosePlan(p){localStorage.setItem(STORAGE.plan,p);show('tutorial')}
+function comingSoon(p){alert(p+' is coming soon!\n\nNo payment has been taken. You can continue using the available demo plan.')}
+function editProfile(){
+editing=true;step=0;const p=profile;const ids=['fullName','email','phone','location','linkedin','portfolio','school','degree','gradYear','experience','activities','skills','fields','preferredLocation','coverLetter','availability','extra'];
+ids.forEach(id=>$(id).value=p[id]||'');$('schoolYear').value=p.schoolYear||'';$('workStyle').value=p.workStyle||'';
+document.querySelectorAll('#interestChips .chip').forEach(c=>c.classList.toggle('selected',(p.interests||[]).includes(c.dataset.value)));
+$('resumeName').textContent=p.resumeName||'Choose a PDF or Word document.';show('setup');updateStep()
+}
+function words(t){return String(t||'').toLowerCase().split(/[,;\n|]+/).map(x=>x.trim()).filter(Boolean)}
+function calculateMatch(op){
+let score=0,reasons=[];const interests=(profile.interests||[]).map(x=>x.toLowerCase()),fields=words(profile.fields),skills=words(profile.skills),degree=words(profile.degree),background=words(profile.experience).concat(words(profile.activities));
+if(interests.includes(op.type.toLowerCase())){score+=25;reasons.push('Matches your selected opportunity type')}
+const mf=fields.filter(f=>op.fields.some(o=>o.includes(f)||f.includes(o))),md=degree.filter(d=>op.fields.some(o=>o.includes(d)||d.includes(o)));
+if(mf.length){score+=Math.min(20,mf.length*10);reasons.push('Matches your career interests')}if(md.length){score+=10;reasons.push('Related to your degree or study area')}
+const sm=skills.filter(s=>op.tags.some(t=>t.includes(s)||s.includes(t)));if(sm.length){score+=Math.min(20,sm.length*5);reasons.push('Uses skills listed in your profile')}
+const bm=background.filter(s=>op.tags.some(t=>t.includes(s)||s.includes(t)));if(bm.length){score+=10;reasons.push('Connects with your previous experience or activities')}
+const pref=(profile.preferredLocation||profile.location||'').toLowerCase(),remote=['remote','anywhere','worldwide','work from home'];
+if(profile.workStyle&&op.work.toLowerCase()===profile.workStyle.toLowerCase()){score+=5;reasons.push('Matches your work arrangement preference')}else if(!profile.workStyle)score+=2;
+if(pref){if(remote.some(x=>pref.includes(x))&&op.work==='Remote'){score+=5;reasons.push('Remote opportunity matches your location preference')}else if(op.location.toLowerCase().includes(pref)){score+=5;reasons.push('Matches your preferred location')}}else score+=3;
+if(!reasons.length)reasons.push('A potential opportunity to explore beyond your current preferences');return{score:Math.min(100,Math.round(score)),reasons}
+}
+function allOpportunities(){
+const business=businessListings.map(o=>{
+const text=[o.title,o.org,o.type,o.location,o.description,o.requirements,o.eligibility].filter(Boolean).join(' ');
+const terms=[...new Set(text.toLowerCase().match(/[a-z0-9+#.-]+/g)||[])];
+return {...o,location:o.location||'Not specified',work:o.work||'Not specified',description:o.description||'',requirements:o.requirements||'Not specified',eligibility:o.eligibility||'Not specified',fields:terms,tags:terms,deadline:o.deadline||'Not provided',source:o.source||'Business-created demo listing',verified:false};
+});
+return [...opportunities,...business];
+}
+function rankOpportunities(){rankedOpportunities=allOpportunities().map(o=>({...o,...(function(){const m=calculateMatch(o);return{matchScore:m.score,matchReasons:m.reasons}})()})).sort((a,b)=>b.matchScore-a.matchScore)}
+function getRemaining(){rankOpportunities();return rankedOpportunities.filter(o=>!interested.includes(o.id)&&!saved.includes(o.id)&&!passed.includes(o.id))}
+function clearFilters(){['searchBox','filterType','filterWork','filterLocation','filterDeadline','filterEligibility'].forEach(id=>$(id).value='');renderCard()}
+function filteredOpportunities(){
+rankOpportunities();let list=rankedOpportunities.filter(o=>!interested.includes(o.id)&&!saved.includes(o.id)&&!passed.includes(o.id));
+const q=$('searchBox').value.toLowerCase().trim(),type=$('filterType').value,work=$('filterWork').value,loc=$('filterLocation').value.toLowerCase().trim(),deadline=$('filterDeadline').value,elig=$('filterEligibility').value;
+return list.filter(o=>{
+const hay=[o.title,o.org,o.type,o.location,o.description,o.fields.join(' '),o.tags.join(' ')].join(' ').toLowerCase();
+if(q&&!hay.includes(q))return false;if(type&&o.type!==type)return false;if(work&&o.work!==work)return false;if(loc&&!o.location.toLowerCase().includes(loc))return false;
+if(deadline==='rolling'&&!/rolling|open/i.test(o.deadline))return false;
+if(deadline==='soon'||deadline==='later'){const d=new Date(o.deadline);if(isNaN(d))return false;const days=(d-new Date())/86400000;if(deadline==='soon'&&(days<0||days>60))return false;if(deadline==='later'&&days<=60)return false}
+if(elig==='undergraduate'&&!/undergraduate/i.test(o.eligibility))return false;if(elig==='student'&&!/student/i.test(o.eligibility))return false;return true
+})
+}
+function renderCard(){
+if(!profile.name){show('home');return}
+$('feedGreeting').textContent='Hi '+profile.name.split(' ')[0]+' — opportunities are ranked using your profile.';
+$('rankingInfo').textContent='Personalized ranking · '+allOpportunities().length+' opportunities ('+opportunities.length+' built-in demos + '+businessListings.length+' business-created)';
+const remaining=filteredOpportunities();
+if(!remaining.length){$('cardArea').innerHTML=`<div class="panel"><h2>No opportunities match those filters.</h2><p class="muted">Try changing your filters, clearing your search, or exploring all available opportunities.</p><button class="primary wide" onclick="clearFilters()">Clear filters</button><button class="ghost wide" onclick="restartFeed()">Restart demo feed</button></div>`;currentOpportunity=null;return}
+const op=remaining[0];currentOpportunity=op;
+$('cardArea').innerHTML=`<article class="opportunity" id="swipeCard"><div class="swipe-overlay overlay-like" id="likeOverlay">INTERESTED ♥</div><div class="swipe-overlay overlay-pass" id="passOverlay">PASS ✕</div><div class="swipe-overlay overlay-save" id="saveOverlay">SAVED ☆</div>
+<div class="matchbox"><div><div class="matchlabel">Your match score</div><div class="small">${op.matchScore>=75?'Strong profile match':op.matchScore>=50?'Good potential match':'Possible opportunity'}</div></div><div class="matchscore">${op.matchScore}%</div></div>
+<span class="pill">${escapeHTML(op.type)}</span><span class="pill">${escapeHTML(op.location)}</span><span class="pill">${escapeHTML(op.work)}</span>
+<h2>${escapeHTML(op.title)}</h2><div class="org">${escapeHTML(op.org)}</div><p class="muted">${escapeHTML(op.description)}</p>
+<div class="matchwhy"><b style="color:var(--accent2)">Why this matched:</b><br>${op.matchReasons.map(escapeHTML).join(' · ')}</div>
+<div class="listitem"><b>Requirements</b><p class="small">${escapeHTML(op.requirements)}</p></div><p class="small">Deadline: ${escapeHTML(op.deadline)}</p><p class="small">⚠ Fictional demo listing · Not a verified real opening.</p></article>`;
+attachGestures()
+}
+function attachGestures(){
+const card=$('swipeCard');if(!card)return;let startX=0,startY=0,dx=0,dy=0,moved=false;
+card.addEventListener('pointerdown',e=>{startX=e.clientX;startY=e.clientY;dx=0;dy=0;moved=false;card.classList.add('dragging');card.setPointerCapture(e.pointerId)});
+card.addEventListener('pointermove',e=>{if(!card.classList.contains('dragging'))return;dx=e.clientX-startX;dy=e.clientY-startY;if(Math.abs(dx)>7||Math.abs(dy)>7)moved=true;card.style.transform=`translate(${dx}px,${dy}px) rotate(${dx*.045}deg)`;$('likeOverlay').style.opacity=dx>0?Math.min(dx/100,1):0;$('passOverlay').style.opacity=dx<0?Math.min(-dx/100,1):0;$('saveOverlay').style.opacity=dy>0?Math.min(dy/100,1):0});
+card.addEventListener('pointerup',()=>{card.classList.remove('dragging');if(Math.abs(dx)>100&&Math.abs(dx)>Math.abs(dy))animateAction(dx>0?'like':'pass');else if(dy>110&&dy>Math.abs(dx))animateAction('save');else{card.style.transform='';['likeOverlay','passOverlay','saveOverlay'].forEach(id=>$(id).style.opacity=0)}if(moved)setTimeout(()=>moved=false,100)});
+card.addEventListener('pointercancel',()=>{card.classList.remove('dragging');card.style.transform='';['likeOverlay','passOverlay','saveOverlay'].forEach(id=>$(id).style.opacity=0)});
+card.addEventListener('click',()=>{if(!moved&&currentOpportunity)openDetails(currentOpportunity.id)})
+}
+function animateAction(type){const card=$('swipeCard');if(!card)return;card.classList.remove('dragging');card.classList.add(type==='like'?'leaving-right':type==='pass'?'leaving-left':'leaving-down');setTimeout(()=>recordAction(type),240)}
+function act(type){animateAction(type)}
+function recordAction(type){
+const op=currentOpportunity;if(!op)return;
+lastSwipe={id:op.id,type,previousStatus:tracker[op.id]||null};
+if(type==='like'){interested.push(op.id);tracker[op.id]='Interested'}
+if(type==='save')saved.push(op.id);if(type==='pass')passed.push(op.id);
+index++;persist();renderCard()
+}
+function undoSwipe(){
+if(!lastSwipe){alert('There is no recent swipe to undo in this session.');return}
+const {id,type,previousStatus}=lastSwipe;
+if(type==='like')interested=interested.filter(x=>x!==id);if(type==='save')saved=saved.filter(x=>x!==id);if(type==='pass')passed=passed.filter(x=>x!==id);
+if(previousStatus)tracker[id]=previousStatus;else delete tracker[id];
+index=Math.max(0,index-1);lastSwipe=null;persist();renderCard();alert('Your last swipe has been undone.')
+}
+function restartFeed(){if(!confirm('Restarting clears your current Interested, Saved and Passed activity. Continue?'))return;index=0;interested=[];saved=[];passed=[];tracker={};lastSwipe=null;persist();renderCard()}
+function openDetails(id){
+rankOpportunities();currentOpportunity=rankedOpportunities.find(o=>o.id===id);if(!currentOpportunity)return;const o=currentOpportunity;
+$('detailArea').innerHTML=`<div class="matchbox"><div><div class="matchlabel">Your match score</div><div class="small">Based on your profile</div></div><div class="matchscore">${o.matchScore}%</div></div>
+<h1 style="font-size:36px">${escapeHTML(o.title)}</h1><div class="org">${escapeHTML(o.org)}</div><div style="margin:15px 0"><span class="pill">${escapeHTML(o.type)}</span><span class="pill">${escapeHTML(o.location)}</span><span class="pill">${escapeHTML(o.work)}</span></div>
+<div class="detail-section"><h3>About this opportunity</h3><p>${escapeHTML(o.description)}</p></div><div class="detail-section"><h3>Why you matched</h3><p>${o.matchReasons.map(escapeHTML).join(' · ')}</p></div>
+<div class="detail-section"><h3>Requirements</h3><p>${escapeHTML(o.requirements)}</p></div><div class="detail-section"><h3>Eligibility</h3><p>${escapeHTML(o.eligibility)}</p></div><div class="detail-section"><h3>Deadline</h3><p>${escapeHTML(o.deadline)}</p></div>
+<div class="detail-section"><h3>Listing source</h3><p>${escapeHTML(o.source||'Business-created demo listing')}</p></div><div class="detail-section"><h3>Verification status</h3><p>Not verified — this is a fictional demonstration listing.</p></div>
+<div class="notice" style="margin-top:15px">${o.source==='Fictional Appli demo listing'?'This is a fictional demo listing, not a real opening.':'This is a business-created demo listing stored only in this browser; it has not been published or independently verified.'} Do not submit personal information based on demo listings.</div>`;
+show('details')
+}
+function backToFeed(){show('feed');renderCard()}
+function prepareApplication(){
+if(!currentOpportunity)return;const p=profile;
+$('applicationArea').innerHTML=`<h2>${escapeHTML(currentOpportunity.title)}</h2><p class="org">${escapeHTML(currentOpportunity.org)}</p>
+<div class="detail-section"><h3>Applicant</h3><p>${escapeHTML(p.name)} · ${escapeHTML(p.email)}</p></div><div class="detail-section"><h3>Education</h3><p>${escapeHTML(p.school)} · ${escapeHTML(p.degree)}</p></div>
+<div class="detail-section"><h3>Resume</h3><p>${escapeHTML(p.resumeName||'No resume filename provided')}</p></div><div class="detail-section"><h3>Cover letter / introduction</h3><p>${escapeHTML(p.coverLetter||'No introduction provided')}</p></div><div class="detail-section"><h3>Availability</h3><p>${escapeHTML(p.availability||'Not provided')}</p></div>
+<div class="notice" style="margin-top:15px">Review these details. This demo cannot submit an application or send your information to the organization.</div>`;show('application')
+}
+function backToDetails(){show('details')}
+function confirmInterest(){
+if(!currentOpportunity)return;if(!interested.includes(currentOpportunity.id))interested.push(currentOpportunity.id);
+saved=saved.filter(id=>id!==currentOpportunity.id);passed=passed.filter(id=>id!==currentOpportunity.id);tracker[currentOpportunity.id]=tracker[currentOpportunity.id]||'Interested';persist();
+alert('Added to your Interested list! No application was submitted.');show('dashboard');renderDashboard()
+}
+function findOpportunity(id){return allOpportunities().find(o=>o.id===id)}
+function findTitle(id){return findOpportunity(id)?.title||id}
+function renderDashboard(){
+$('likeCount').textContent=interested.length;$('saveCount').textContent=saved.length;$('passCount').textContent=passed.length;
+$('likedList').innerHTML=interested.length?interested.map(id=>`<div class="listitem">${escapeHTML(findTitle(id))}</div>`).join(''):'Nothing here yet.';
+$('savedList').innerHTML=saved.length?saved.map(id=>`<div class="listitem">${escapeHTML(findTitle(id))}<button class="secondary" style="margin:8px 0 0;padding:8px 10px;font-size:11px" onclick="addToCollection('${id}')">＋ Add to collection</button></div>`).join(''):'Nothing saved yet.';
+$('passedList').innerHTML=passed.length?passed.map(id=>`<div class="listitem">${escapeHTML(findTitle(id))}</div>`).join(''):'Nothing here yet.';
+renderTracker();renderCollections()
+}
+function renderTracker(){
+const ids=[...new Set([...interested,...Object.keys(tracker)])];
+$('trackerList').innerHTML=ids.length?ids.map(id=>{const o=findOpportunity(id);if(!o)return'';const st=tracker[id]||'Interested';return `<div class="listitem"><b>${escapeHTML(o.title)}</b><p class="small">${escapeHTML(o.org||'')}</p><select class="status-select" onchange="setStatus('${escapeHTML(id)}',this.value)">${statuses.map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join('')}</select></div>`}).join(''):'<p class="muted">Swipe right on an opportunity or mark one as interested to start tracking your applications.</p>'
+}
+function setStatus(id,status){tracker[id]=status;if(!interested.includes(id))interested.push(id);saved=saved.filter(x=>x!==id);persist();renderDashboard()}
+function createCollection(){const name=$('collectionName').value.trim();if(!name){alert('Enter a collection name first.');return}const id='c_'+Date.now();collections[id]={name,ids:[]};$('collectionName').value='';persist();renderCollections()}
+function addToCollection(id){const names=Object.keys(collections);if(!names.length){alert('Create a collection in your dashboard first.');return}const choice=prompt('Enter a collection name:\n'+names.map(k=>collections[k].name).join('\n'));if(!choice)return;const key=names.find(k=>collections[k].name.toLowerCase()===choice.toLowerCase());if(!key){alert('I could not find that collection.');return}if(!collections[key].ids.includes(id))collections[key].ids.push(id);persist();alert('Added to '+collections[key].name)}
+function renderCollections(){
+$('collectionList').innerHTML=Object.keys(collections).length?Object.entries(collections).map(([id,c])=>`<div class="business-card"><b>${escapeHTML(c.name)}</b><p class="small">${c.ids.length} saved opportunities</p>${c.ids.map(x=>`<div class="listitem">${escapeHTML(findTitle(x))}</div>`).join('')}<button class="danger" onclick="deleteCollection('${id}')">Delete collection</button></div>`).join(''):'<p class="muted">No collections yet.</p>'
+}
+function deleteCollection(id){if(!confirm('Delete this collection?'))return;delete collections[id];persist();renderCollections()}
+function renderAlerts(){
+rankOpportunities();const matches=rankedOpportunities.slice(0,5);
+$('alertList').innerHTML=matches.length?matches.map(o=>`<div class="alert-item"><b>${escapeHTML(o.title)}</b><p class="small">${escapeHTML(o.org)} · ${escapeHTML(o.type)} · ${o.matchScore}% match</p><button class="secondary" onclick="openDetails('${o.id}')">View opportunity</button></div>`).join(''):'<p class="muted">No opportunities are available yet. Check back after listings are created.</p>'
+}
+function renderProfile(){
+const p=profile;const fields=[['Email',p.email],['Phone',p.phone],['Location',p.location],['LinkedIn',p.linkedin],['Portfolio',p.portfolio],['School',p.school],['Degree',p.degree],['Graduation year',p.gradYear],['Education level',p.schoolYear],['Experience',p.experience],['Activities',p.activities],['Skills',p.skills],['Interests',(p.interests||[]).join(', ')],['Fields',p.fields],['Preferred location',p.preferredLocation],['Resume filename',p.resumeName],['Availability',p.availability],['Work preference',p.workStyle],['Subscription plan',localStorage.getItem(STORAGE.plan)||'Not selected']];
+$('profileSummary').innerHTML=`<h2>${escapeHTML(p.name)}</h2>`+fields.map(([l,v])=>`<div class="listitem"><b>${escapeHTML(l)}</b><p class="muted">${escapeHTML(v||'Not provided')}</p></div>`).join('')
+}
+function clearBusinessForm(){['orgName','orgEmail','orgWebsite','orgLocation','orgDescription','orgContact'].forEach(id=>$(id).value='');$('orgType').selectedIndex=0}
+function saveBusinessProfile(){
+if(!$('orgName').value.trim()||!$('orgEmail').value.trim()||!$('orgEmail').checkValidity()){alert('Please enter your organization name and a valid work email.');return}
+businessProfile={name:$('orgName').value.trim(),email:$('orgEmail').value.trim(),type:$('orgType').value,website:$('orgWebsite').value.trim(),location:$('orgLocation').value.trim(),description:$('orgDescription').value.trim(),contact:$('orgContact').value.trim()};
+saveJSON(STORAGE.business,businessProfile);if(!localStorage.getItem(STORAGE.businessPlan))show('businessPlans');else{show('businessDashboard');renderBusinessDashboard()}
+}
+function chooseBusinessPlan(p){localStorage.setItem(STORAGE.businessPlan,p);show('businessDashboard');renderBusinessDashboard()}
+function createListing(){
+const title=$('listingTitle').value.trim();if(!title){alert('Please enter an opportunity title.');return}
+const listing={id:'biz_'+Date.now(),title,org:businessProfile.name||'Business account',type:$('listingType').value,location:$('listingLocation').value.trim(),work:$('listingWork').value,description:$('listingDescription').value.trim(),requirements:$('listingRequirements').value.trim(),eligibility:$('listingEligibility').value.trim()||'Not specified',deadline:$('listingDeadline').value.trim(),url:$('listingUrl').value.trim(),created:new Date().toLocaleDateString(),source:'Business-created demo listing',verified:false};
+businessListings.push(listing);saveJSON(STORAGE.listings,businessListings);
+['listingTitle','listingLocation','listingDescription','listingRequirements','listingEligibility','listingDeadline','listingUrl'].forEach(id=>$(id).value='');
+alert('Your demo listing has been created. It is now available in the personal Discover feed in this browser.');renderBusinessDashboard()
+}
+function renderBusinessDashboard(){
+$('businessGreeting').textContent='Welcome, '+(businessProfile.name||'organization')+'. Manage your demo opportunities here.';$('listingCount').textContent=businessListings.length;$('applicantCount').textContent='—';$('businessPlanLabel').textContent=localStorage.getItem(STORAGE.businessPlan)||'Not selected';
+$('businessListings').innerHTML=businessListings.length?businessListings.map(o=>`<div class="business-card"><span class="pill">${escapeHTML(o.type)}</span><h3>${escapeHTML(o.title)}</h3><p class="small">${escapeHTML(o.location)} · ${escapeHTML(o.work)}</p><p class="muted">${escapeHTML(o.description)}</p><p class="small">Deadline: ${escapeHTML(o.deadline||'Not provided')}</p><p class="small">Status: Demo listing · Not independently verified</p><button class="danger" onclick="deleteListing('${o.id}')">Delete listing</button></div>`).join(''):'<p class="muted">You have not created any demo listings yet.</p>'
+}
+function deleteListing(id){
+if(!confirm('Delete this demo listing?'))return;
+businessListings=businessListings.filter(o=>o.id!==id);saveJSON(STORAGE.listings,businessListings);
+interested=interested.filter(x=>x!==id);saved=saved.filter(x=>x!==id);passed=passed.filter(x=>x!==id);delete tracker[id];
+Object.values(collections).forEach(c=>c.ids=c.ids.filter(x=>x!==id));persist();renderBusinessDashboard()
+}
+function renderBusinessProfile(){
+const p=businessProfile,fields=[['Work email',p.email],['Organization type',p.type],['Website',p.website],['Location',p.location],['Description',p.description],['Contact person',p.contact],['Business plan',localStorage.getItem(STORAGE.businessPlan)||'Not selected']];
+$('businessProfileSummary').innerHTML=`<h2>${escapeHTML(p.name)}</h2>`+fields.map(([l,v])=>`<div class="listitem"><b>${escapeHTML(l)}</b><p class="muted">${escapeHTML(v||'Not provided')}</p></div>`).join('')
+}
+function editBusinessProfile(){const p=businessProfile;$('orgName').value=p.name||'';$('orgEmail').value=p.email||'';$('orgType').value=p.type||'';$('orgWebsite').value=p.website||'';$('orgLocation').value=p.location||'';$('orgDescription').value=p.description||'';$('orgContact').value=p.contact||'';show('businessSetup')}
+function resetDemo(){
+if(!confirm('Clear your Appli profile, plans, listings and demo activity from this browser?'))return;
+Object.values(STORAGE).forEach(k=>localStorage.removeItem(k));profile={};businessProfile={};businessListings=[];interested=[];saved=[];passed=[];tracker={};collections={};index=0;currentOpportunity=null;lastSwipe=null;accountType='personal';show('home')
+}
+
+
+/* FAQ ASSISTANT */
+function toggleChat(){$('chatbox').classList.toggle('open');if($('chatbox').classList.contains('open'))setTimeout(()=>$('chatInput').focus(),50)}
+function addChatMessage(text,type){
+const div=document.createElement('div');div.className='chatmsg '+(type==='user'?'usermsg':'botmsg');div.textContent=text;$('chatMessages').appendChild(div);$('chatMessages').scrollTop=$('chatMessages').scrollHeight
+}
+function faq(question){$('chatInput').value=question;sendQuestion()}
+function sendQuestion(){
+const input=$('chatInput'),question=input.value.trim();if(!question)return;
+addChatMessage(question,'user');input.value='';
+const answer=getFAQAnswer(question);
+setTimeout(()=>addChatMessage(answer,'bot'),140)
+}
+$('chatForm').addEventListener('submit',e=>{e.preventDefault();sendQuestion()});
+function getFAQAnswer(question){
+const q=question.toLowerCase();
+if(/what is appli|what does appli|about appli|purpose of appli/.test(q))return 'Appli is an opportunity discovery platform designed to help people find jobs, internships, scholarships, research positions, fellowships and more. Businesses can also create organization profiles and demo opportunity listings.';
+if(/match|ranking|score|recommend/.test(q))return 'Appli compares your profile with opportunity types, fields of interest, education, skills, experience and location. It generates a recommendation score. The current prototype uses a basic rule-based matching system, not artificial intelligence. A match score is not a guarantee that you meet every eligibility requirement.';
+if(/real|verified|legit|fake|listing|opportunit(y|ies)/.test(q))return 'The opportunities currently in Discover are fictional demo listings. They are not real vacancies and have not been verified. Real listings, verified employers and official application links will require connected data sources, a backend and a verification process.';
+if(/subscription|pricing|price|cost|free|plus|payment|pay/.test(q))return 'Personal plans currently include Free, Plus Monthly at a proposed $7.99 per month, and Plus Yearly at a proposed $59.99 per year. Paid plans are Coming Soon. Business plans have separate proposed pricing. No payments are currently collected.';
+if(/private|privacy|information|data|secure|resume/.test(q))return 'This prototype stores profile information in your browser using local storage. It does not send your information to a server. Your resume file is not uploaded; only its filename is saved. Do not use sensitive personal information in this demo.';
+if(/business|organization|employer|company|recruit/.test(q))return 'Business accounts can create an organization profile and local demo opportunity listings. Listings created in this browser now appear in the personal Discover feed too. Publishing to other users, applicant management, organization verification and payments are not connected yet.';
+if(/tracker|track|application status|applied|interview/.test(q))return 'The application tracker lets you move an opportunity through Interested, Preparing, Applied, Interviewing, Offer, Rejected or Withdrawn. These statuses are stored locally in this browser. Appli does not submit applications for you.';
+if(/save|saved|collection|bookmark/.test(q))return 'Swipe down or press the Save button to save an opportunity. You can review saved opportunities on your dashboard and create collections to organize them.';
+if(/undo|accident|swipe/.test(q))return 'Use the Undo last swipe button on the Discover screen to reverse your most recent swipe during the current session. It can undo a pass, save or interested action.';
+if(/filter|search|find/.test(q))return 'On the Discover screen, you can search by title, organization or keywords and filter by opportunity type, work arrangement, location, deadline and eligibility.';
+if(/alert|notification|new opportunity/.test(q))return 'The Opportunity Alerts section currently highlights some of the strongest profile matches from the demo listings. Real-time notifications and automatic monitoring of newly published listings are not connected yet.';
+if(/apply|application|submit/.test(q))return 'Appli helps you prepare and track applications, but this prototype does not submit applications or send your information to organizations. You must review and submit applications yourself through an official application portal.';
+if(/who made|contact|support|help/.test(q))return 'Appli is currently a prototype. You can leave feedback in the Feedback section at the bottom of the page, but its submission button is not connected yet.';
+return 'I don’t have an answer for that in the current FAQ yet. Try asking about Appli, matching, listings, pricing, privacy, business accounts, applications, filters, saved collections or alerts. You can also leave that question in the Feedback section so it can be added to the FAQ.'
+}
+loadSaved();
+if(profile.name)$('welcomeTitle').textContent='Welcome back, '+profile.name.split(' ')[0]+'.';
+if(businessProfile.name)$('businessGreeting').textContent='Welcome back, '+businessProfile.name+'.';
+</script>
+</body>
+</html>
